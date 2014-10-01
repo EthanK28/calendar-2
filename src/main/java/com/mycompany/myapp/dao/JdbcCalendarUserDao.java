@@ -132,5 +132,18 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 	@Override
 	public void deleteAll() {
 		// Assignment 2
+		Connection c; 
+		try {
+			c = dataSource.getConnection();
+			PreparedStatement ps = c.prepareStatement("delete from calendar_users");
+			ps.executeUpdate();
+			
+			ps.close();
+			c.close();
+		} catch (SQLException e) {
+			System.out.println("캘리더 유저 데이터 삭제 오류 "+e.getMessage());
+		}
+
+		
 	}
 }

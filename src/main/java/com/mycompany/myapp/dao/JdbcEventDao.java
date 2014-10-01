@@ -110,6 +110,45 @@ public class JdbcEventDao implements EventDao {
 	@Override
 	public List<Event> findForOwner(int ownerUserId) {
 		// Assignment 2
+		ApplicationContext context = new GenericXmlApplicationContext("com/mycompany/myapp/applicationContext.xml");;
+		CalendarUserDao calendarUserDao = context.getBean("calendarUserDao", JdbcCalendarUserDao.class);
+		
+		Event event = new Event();
+		List<Event> list = new ArrayList<Event>();
+
+		Connection c;
+		try {
+			c = dataSource.getConnection();
+
+
+			PreparedStatement ps = c.prepareStatement( "select * from events where owner = ?");
+			ps.setString(1, Integer.toString(ownerUserId));
+
+			ResultSet rs = ps.executeQuery();
+			//rs.next();
+			while (rs.next()){
+			event.setId(Integer.parseInt(rs.getString("id")));			 
+			Calendar when = Calendar.getInstance();
+			when.setTimeInMillis(rs.getTimestamp("when").getTime());
+			event.setWhen(when);
+			event.setSummary(rs.getString("summary"));
+			event.setDescription(rs.getString("description"));
+			CalendarUser owner = calendarUserDao.getUser(rs.getInt("owner"));
+			event.setOwner(owner);
+			CalendarUser attendee = calendarUserDao.getUser(rs.getInt("attendee"));
+			event.setAttendee(attendee);
+			
+			}
+		
+
+			rs.close();
+			ps.close();
+			c.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 
@@ -158,5 +197,16 @@ public class JdbcEventDao implements EventDao {
 	@Override
 	public void deleteAll() {
 		// Assignment 2
+		Connection c; 
+		try {
+			c = dataSource.getConnection();
+			PreparedStatement ps = c.prepareStatement("delete from events");
+			ps.executeUpdate();
+			
+			ps.close();
+			c.close();
+		} catch (SQLException e) {
+			System.out.println("이벤트 데이터 삭제 오류 "+e.getMessage());
+		}
 	}
 }

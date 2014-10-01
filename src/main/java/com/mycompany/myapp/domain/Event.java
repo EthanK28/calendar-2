@@ -24,6 +24,20 @@ public class Event {
     private String description;
     private CalendarUser owner;
     private CalendarUser attendee;
+    
+    public Event() {
+    	
+    }
+    
+    public Event (Integer id, Calendar when, String summary, String description, CalendarUser owner, CalendarUser attendee) {
+    	this.id = id;
+    	this.when = when;
+    	this.summary = summary;
+    	this.description = description;
+    	this.owner = owner;
+    	this.attendee = attendee;
+    	
+    }
 
     public Integer getId() {
         return id;

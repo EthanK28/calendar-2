@@ -24,6 +24,7 @@ public class DaoTest {
 			CalendarUser calendarUser = calendarUserDao.getUser(i);
 			System.out.println("id: "+calendarUser.getId() + "\temail: " + calendarUser.getEmail() + "\tname: " + calendarUser.getName());			
 		}
+		
 		//2. 디폴트로 등록된 Event 3개 출력 (owner와 attendee는 해당 사용자의 이메일과 이름을 출력)
 		System.out.println("\n2. ---------------------------------------------------------");
 		List<Event> events = eventDao.getEvents();
