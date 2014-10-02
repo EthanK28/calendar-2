@@ -92,11 +92,13 @@ public class JdbcEventDao implements EventDao {
 			ps.executeUpdate();
 
 			ResultSet rs = ps.getGeneratedKeys();
-
-			if(rs.next())
-			{
-				generatedId = rs.getInt(1);
-			}
+			rs.next();
+			System.out.println("발생된 키값"+rs.getInt(1));
+			//if(rs.next())
+			//{
+			//	generatedId = rs.getInt(1);
+			//}
+			
 			rs.close();
 			ps.close();
 			c.close();

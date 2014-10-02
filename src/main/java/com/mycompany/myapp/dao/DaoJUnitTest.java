@@ -51,9 +51,9 @@ public class DaoJUnitTest {
 		CalendarUser createUser2 = new CalendarUser(2,"admin1@example.com","admin1","Admin");
 		CalendarUser createUser3 = new CalendarUser(3,"user2@example.com","user2","User2");
 		
-		calendarUserDao.createUser(createUser1);
-		calendarUserDao.createUser(createUser2);
-		calendarUserDao.createUser(createUser3);
+		int createdUserId1 = calendarUserDao.createUser(createUser1);
+		int createdUserId2 = calendarUserDao.createUser(createUser2);
+		int createdUserId3 = calendarUserDao.createUser(createUser3);
 
 		//디폴트 이벤트 등록
 		String event1Ts = "2013-10-04 20:30:00";		
@@ -66,15 +66,22 @@ public class DaoJUnitTest {
 			e.printStackTrace();
 		}		
 		
+		Event createEvent1 = new Event(100,cal,"Birthday Party", "This is going to be a great birthday", calendarUserDao.getUser(createdUserId1), calendarUserDao.getUser(createdUserId2));;
+		eventDao.createEvent(createEvent1);
+		
+		
 		//(100,"2013-10-04 20:30:00","Birthday Party", "This is going to be a great birthday", calendarUserDao.getUser(1), calendarUserDao.getUser(2));
 		
-		//Event createEvent2 = new Event(101, );		
+		//2번째 초기화 유저용 		
 		String event2Ts = "2013-12-23 13:00:00";
 		try {
 			cal.setTime(sdf.parse(event2Ts));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		
+		Event createEvent2 = new Event(101,cal,"Conference Call","Call with the client",calendarUserDao.getUser(createdUserId3), calendarUserDao.getUser(createdUserId1));// 3,1));
+		eventDao.createEvent(createEvent2);
 		//Event createEvent3 = new Event();
 		
 		String event3Ts = "2014-01-23 11:30:00";
@@ -83,6 +90,8 @@ public class DaoJUnitTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		Event createEvent3 = new Event(102,cal,"Lunch","Eating lunch together",calendarUserDao.getUser(createdUserId2),calendarUserDao.getUser(createdUserId3));
+		eventDao.createEvent(createEvent3);
 		
 		
 		/*
@@ -154,7 +163,7 @@ public class DaoJUnitTest {
 		//    방금 추가한 2개의 이벤트와 내용 (summary, description, owner, attendee)이 일치하는 지 비교
 		// [주의 1] when은 비교하지 않아도 좋다.
 		// [주의 2] owner와 attendee는 @Before에서 미리 등록해 놓은 3명의 CalendarUser 중에서 임의의 것을 골라 활용한다.
-		Event createEvent1 = new Event();
+		/*Event createEvent1 = new Event();
 		Event createEvent2 = new Event();
 		int createEvent1Id;
 		int createEvent2Id;
@@ -185,7 +194,7 @@ public class DaoJUnitTest {
 		assertThat(createEvent2.getSummary(),is(getCreateEvent2.getSummary()));
 		assertThat(createEvent2.getDescription(),is(getCreateEvent2.getDescription()));
 		assertThat(createEvent2.getOwner(),is(getCreateEvent2.getOwner()));
-		assertThat(createEvent2.getAttendee(),is(getCreateEvent2.getAttendee()));
+		assertThat(createEvent2.getAttendee(),is(getCreateEvent2.getAttendee())); */
 		
 	}
 	
@@ -204,7 +213,7 @@ public class DaoJUnitTest {
 	
 	@Test
 	public void getOneUserByEmail() {
-		// 6. email이 'user1@example.com'인 CalendarUser가 1명뿐임을 확인하는 테스크 코드 작성
+		// 6. email이 'user1@example.com'인 CalendarUser가 존재함을 확인하는 테스크 코드 작성
 		// [주의] public CalendarUser findUserByEmail(String email)를 테스트 하는 코드
 	}
 	
