@@ -42,6 +42,7 @@ public class JdbcEventDao implements EventDao {
 	}
 
 	// --- EventService ---
+	//JdbcEventDao RowMapper
 	private RowMapper<Event> userMapper =
 			new RowMapper<Event>() {
 		public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -68,7 +69,7 @@ public class JdbcEventDao implements EventDao {
 	//	return this.jdbcTemplate.queryForObject("select * from events where id = ?", new Object[] {eventId}, this.userMapper);		
 	//}
 	
-	
+	//템플릿으로 getEvent 리팩토링
 	@Override
 	public Event getEvent (int eventId) {
 		String sql_query;
@@ -116,14 +117,15 @@ public class JdbcEventDao implements EventDao {
 		return event;
 	}*/
 	
-
+	//템플릿으로 createEvent 리팩토링
 	public int createEvent(final Event event) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();		
 		//public int update(PreparedStatementCreator psc, KeyHolder generatedKeyHolder) throws DataAccessException
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement("insert into events(`when`, summary, description, owner, attendee) values(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement ps = connection.prepareStatement("insert into events(`when`, summary, description, owner, attendee) "
+						+ "values(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 				
 				Timestamp timestamp = new Timestamp(event.getWhen().getTimeInMillis()); 
 				ps.setTimestamp(1, timestamp);
@@ -175,7 +177,8 @@ public class JdbcEventDao implements EventDao {
 		}
 		return generatedId;
 	}*/
-
+	
+	//템플릿으로 findForOwner 리팩토링
 	@Override
 	public List<Event> findForOwner (int ownerUserId) {
 		String sql_query;
@@ -228,7 +231,7 @@ public class JdbcEventDao implements EventDao {
 		return list;
 	}*/
 
-	
+	//템플릿으로 getEvents 리팩토링
 	@Override
 	public List<Event> getEvents () {
 		String sql_query;
@@ -277,12 +280,13 @@ public class JdbcEventDao implements EventDao {
 		return list;
 	}
 	*/
+	//템플릿으로 deleteAll 리팩토링
 	@Override
 	public void deleteAll() {
 		// Assignment 2
 		this.jdbcTemplate.update("delete from events");		
 		
-		
+	/*
 		Connection c; 
 		try {
 			c = dataSource.getConnection();
@@ -293,6 +297,6 @@ public class JdbcEventDao implements EventDao {
 			c.close();
 		} catch (SQLException e) {
 			System.out.println("이벤트 데이터 삭제 오류 "+e.getMessage());
-		}
+		}*/
 	}
 }

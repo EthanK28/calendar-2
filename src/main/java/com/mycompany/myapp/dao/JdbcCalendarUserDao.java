@@ -40,6 +40,7 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 	}
 
 	// --- CalendarUserDao methods ---
+	//CalendarUser용 위한 CalendarUser용 RowMapper 생성
 	private RowMapper<CalendarUser> userMapper =
 			new RowMapper<CalendarUser>() {
 		public CalendarUser mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -52,11 +53,12 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 		}
 	};
 	
-	
+	// 템플릿을 활용한 getUser 리팩토링
 	@Override
 	public CalendarUser getUser (int id) {
 		//sql_query = "select * from calendar_users where email like ?";
-		return this.jdbcTemplate.queryForObject("select * from calendar_users where id = ?", new Object[] {id} ,this.userMapper);
+		return this.jdbcTemplate.queryForObject("select * from calendar_users where id = ?", 
+				new Object[] {id} ,this.userMapper);
 	}
 	/*
 	public CalendarUser getUser(int id){
@@ -89,11 +91,13 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 	}
 	*/
 
+	// 템플릿을 화용한 findUserByEmail 리팩토링
 	@Override
 	public CalendarUser findUserByEmail (String email) {
 		String sql_query;
 		sql_query = "select * from calendar_users where email like ?";
-		return this.jdbcTemplate.queryForObject("select * from calendar_users where email like ?", new Object[] {email} ,this.userMapper);
+		return this.jdbcTemplate.queryForObject("select * from calendar_users where email like ?", 
+				new Object[] {email} ,this.userMapper);
 	}
 	/*
 	@Override
@@ -134,6 +138,7 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 	
 	}*/
 
+	//템플릿을 황요한 findUsersByEmaild 리팩토링
 	@Override
 	public List<CalendarUser> findUsersByEmail (String email) {
 		String sql_query;
@@ -181,14 +186,15 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 		}	return calendarUsers;
 	}*/
 	
-	//CreateUser 전환
+	//템플릿 황요 CreateUser 리팩토링
 	public int createUser(final CalendarUser userToAdd) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();		
 		//public int update(PreparedStatementCreator psc, KeyHolder generatedKeyHolder) throws DataAccessException
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement("insert into calendar_users(email, password, name) values(?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+				PreparedStatement ps = connection.prepareStatement("insert into calendar_users(email, password, name) "
+						+ "values(?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
 				ps.setString(1, userToAdd.getEmail());
 				ps.setString(2, userToAdd.getPassword());
 				ps.setString(3, userToAdd.getName());
@@ -230,6 +236,7 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 		return generatedId;
 	}*/
 	
+	//템플릿응 활용한 dellteAll 리팩토링
 	@Override
 	public void deleteAll() {
 		// Assignment 2
@@ -245,8 +252,6 @@ public class JdbcCalendarUserDao implements CalendarUserDao {
 			c.close();
 		} catch (SQLException e) {
 			System.out.println("캘리더 유저 데이터 삭제 오류 "+e.getMessage());
-		}*/
-
-		
+		}*/		
 	}
 }
