@@ -16,12 +16,12 @@ public class CalendarUser {
     private String password;
     private String name;
     
-    public CalendarUser(){
-    	
-    }
+    public CalendarUser() {
+		
+	
+	}
     
-	public CalendarUser(Integer id, String email, String name, String password) {
-		this.id = id;
+	public CalendarUser(String email, String name, String password) {
 		this.email = email;
 		this.name = name;
 		this.password = password;

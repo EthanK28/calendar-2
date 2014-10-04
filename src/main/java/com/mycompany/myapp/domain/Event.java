@@ -29,8 +29,8 @@ public class Event {
     	
     }
     
-    public Event (Integer id, Calendar when, String summary, String description, CalendarUser owner, CalendarUser attendee) {
-    	this.id = id;
+    public Event (Calendar when, String summary, String description, CalendarUser owner, CalendarUser attendee) {
+    	
     	this.when = when;
     	this.summary = summary;
     	this.description = description;

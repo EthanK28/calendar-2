@@ -32,14 +32,14 @@ public class DaoJUnitTest {
 	@Autowired
 	private EventDao eventDao;
 	
-	private CalendarUser[] calendarUsers = null;
-	private Event[] events = null;
+	private CalendarUser[] calendarUsers;
+	private Event[] events; 
+	
 	
 	@Before
 	public void setUp() {
 		calendarUsers = new CalendarUser[3];
 		events = new Event[3];
-		
 		//기존 등록된 유저 삭제 
 		this.calendarUserDao.deleteAll();
 		
@@ -47,13 +47,17 @@ public class DaoJUnitTest {
 		this.eventDao.deleteAll();
 		
 		//디폴트 유저 등록
-		CalendarUser createUser1 = new CalendarUser(1,"user1@example.com","user1","User1");
-		CalendarUser createUser2 = new CalendarUser(2,"admin1@example.com","admin1","Admin");
-		CalendarUser createUser3 = new CalendarUser(3,"user2@example.com","user2","User2");
+		CalendarUser setupCreateUser1 = new CalendarUser("user1@example.com","user1","User1");
+		CalendarUser setupCreateUser2 = new CalendarUser("admin1@example.com","admin1","Admin");
+		CalendarUser setupCreateUser3 = new CalendarUser("user2@example.com","user2","User2");
 		
-		int createdUserId1 = calendarUserDao.createUser(createUser1);
-		int createdUserId2 = calendarUserDao.createUser(createUser2);
-		int createdUserId3 = calendarUserDao.createUser(createUser3);
+		
+		int setupCreatedUserId1 = calendarUserDao.createUser(setupCreateUser1);
+		setupCreateUser1.setId(setupCreatedUserId1); calendarUsers[0] = setupCreateUser1; 
+		int setupCreatedUserId2 = calendarUserDao.createUser(setupCreateUser2);
+		setupCreateUser2.setId(setupCreatedUserId2); calendarUsers[1] = setupCreateUser2;
+		int setupCreatedUserId3 = calendarUserDao.createUser(setupCreateUser3);
+		setupCreateUser3.setId(setupCreatedUserId3); calendarUsers[2] = setupCreateUser3;
 
 		//디폴트 이벤트 등록
 		String event1Ts = "2013-10-04 20:30:00";		
@@ -66,8 +70,9 @@ public class DaoJUnitTest {
 			e.printStackTrace();
 		}		
 		
-		Event createEvent1 = new Event(100,cal,"Birthday Party", "This is going to be a great birthday", calendarUserDao.getUser(createdUserId1), calendarUserDao.getUser(createdUserId2));;
-		eventDao.createEvent(createEvent1);
+		Event setupCreateEvent1 = new Event(cal,"Birthday Party", "This is going to be a great birthday", calendarUserDao.getUser(setupCreatedUserId1), calendarUserDao.getUser(setupCreatedUserId2));;
+		eventDao.createEvent(setupCreateEvent1);
+		events[0] = setupCreateEvent1;
 		
 		
 		//(100,"2013-10-04 20:30:00","Birthday Party", "This is going to be a great birthday", calendarUserDao.getUser(1), calendarUserDao.getUser(2));
@@ -80,9 +85,9 @@ public class DaoJUnitTest {
 			e.printStackTrace();
 		}
 		
-		Event createEvent2 = new Event(101,cal,"Conference Call","Call with the client",calendarUserDao.getUser(createdUserId3), calendarUserDao.getUser(createdUserId1));// 3,1));
-		eventDao.createEvent(createEvent2);
-		//Event createEvent3 = new Event();
+		Event setupCreateEvent2 = new Event(cal,"Conference Call","Call with the client",calendarUserDao.getUser(setupCreatedUserId3), calendarUserDao.getUser(setupCreatedUserId1));// 3,1));
+		eventDao.createEvent(setupCreateEvent2);
+		events[1] = setupCreateEvent2;
 		
 		String event3Ts = "2014-01-23 11:30:00";
 		try {
@@ -90,8 +95,9 @@ public class DaoJUnitTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		Event createEvent3 = new Event(102,cal,"Lunch","Eating lunch together",calendarUserDao.getUser(createdUserId2),calendarUserDao.getUser(createdUserId3));
-		eventDao.createEvent(createEvent3);
+		Event setupCreateEvent3 = new Event(cal,"Lunch","Eating lunch together",calendarUserDao.getUser(setupCreatedUserId2),calendarUserDao.getUser(setupCreatedUserId3));
+		eventDao.createEvent(setupCreateEvent3);
+		events[2] = setupCreateEvent3;
 		
 		
 		/*
@@ -121,10 +127,12 @@ public class DaoJUnitTest {
 		
 	}
 	
+	
 	@Test
 	public void createCalendarUserAndCompare() {
 		// 2. 새로운 CalendarUser 2명 등록 및 각각 id 추출하고, 추출된 id와 함께 새로운 CalendarUser 2명을 DB에서 가져와 (getUser 메소드 사용) 
 		//    방금 등록된 2명의 사용자와 내용 (이메일, 이름, 패스워드)이 일치하는 지 비교
+		System.out.println("\n2.------------------------------------------------");
 		CalendarUser createUser1 = new CalendarUser();
 		CalendarUser createUser2 = new CalendarUser();
 		
@@ -145,15 +153,19 @@ public class DaoJUnitTest {
 		System.out.println("createUser2 Id: "+createUser2Id);
 		
 		CalendarUser getCreateUser1 = calendarUserDao.getUser(createUser1Id);
-		CalendarUser getCreateUser2 = calendarUserDao.getUser(createUser2Id);				
 		
 		assertThat(createUser1.getName(),is(getCreateUser1.getName()));
 		assertThat(createUser1.getEmail(),is(getCreateUser1.getEmail()));
 		assertThat(createUser1.getPassword(),is(getCreateUser1.getPassword()));
 		
+		CalendarUser getCreateUser2 = calendarUserDao.getUser(createUser2Id);
+		
 		assertThat(createUser2.getName(),is(getCreateUser2.getName()));
 		assertThat(createUser2.getEmail(),is(getCreateUser2.getEmail()));
 		assertThat(createUser2.getPassword(),is(getCreateUser2.getPassword()));
+		System.out.println("2번테스트 성공");
+		System.out.println("------------------------------------------------");
+		
 		
 	}
 	
@@ -163,28 +175,33 @@ public class DaoJUnitTest {
 		//    방금 추가한 2개의 이벤트와 내용 (summary, description, owner, attendee)이 일치하는 지 비교
 		// [주의 1] when은 비교하지 않아도 좋다.
 		// [주의 2] owner와 attendee는 @Before에서 미리 등록해 놓은 3명의 CalendarUser 중에서 임의의 것을 골라 활용한다.
-		/*Event createEvent1 = new Event();
+		System.out.println("\n3.------------------------------------------------");
+		
+		Event createEvent1 = new Event();
 		Event createEvent2 = new Event();
-		int createEvent1Id;
-		int createEvent2Id;
+		int createdEvent1Id;
+		int createdEvent2Id;
 		
 		createEvent1.setWhen(Calendar.getInstance());
+		
 		createEvent1.setSummary("event1 - summary");
 		createEvent1.setDescription("event1 - description");
-		createEvent1.setOwner(calendarUserDao.getUser(1));
-		createEvent1.setAttendee(calendarUserDao.getUser(2));
+		createEvent1.setOwner(calendarUserDao.getUser(calendarUsers[0].getId())); //1
+		createEvent1.setAttendee(calendarUserDao.getUser(calendarUsers[1].getId())); //2
+		System.out.println("ID: "+calendarUsers[0].getId());
+		createdEvent1Id = eventDao.createEvent(createEvent1);
+		
 		
 		createEvent2.setWhen(Calendar.getInstance());
 		createEvent2.setSummary("event2 - summary");
 		createEvent2.setDescription("event2 - description");
-		createEvent2.setOwner(calendarUserDao.getUser(3));
-		createEvent2.setAttendee(calendarUserDao.getUser(1));
+		createEvent2.setOwner(calendarUserDao.getUser(calendarUsers[2].getId())); //3
+		createEvent2.setAttendee(calendarUserDao.getUser(calendarUsers[0].getId())); //1
+		createdEvent2Id = eventDao.createEvent(createEvent2);
 		
-		createEvent1Id = eventDao.createEvent(createEvent1);
-		createEvent2Id = eventDao.createEvent(createEvent2);
-		
-		Event getCreateEvent1 = eventDao.getEvent(createEvent1Id);
-		Event getCreateEvent2 = eventDao.getEvent(createEvent2Id);
+		Event getCreateEvent1 = eventDao.getEvent(createdEvent1Id);
+		//System.out.println("getCreatEvent1 아이디: "+getCreateEvent1.getId());
+		Event getCreateEvent2 = eventDao.getEvent(createdEvent2Id);
 		
 		assertThat(createEvent1.getSummary(),is(getCreateEvent1.getSummary()));
 		assertThat(createEvent1.getDescription(),is(getCreateEvent1.getDescription()));
@@ -194,7 +211,8 @@ public class DaoJUnitTest {
 		assertThat(createEvent2.getSummary(),is(getCreateEvent2.getSummary()));
 		assertThat(createEvent2.getDescription(),is(getCreateEvent2.getDescription()));
 		assertThat(createEvent2.getOwner(),is(getCreateEvent2.getOwner()));
-		assertThat(createEvent2.getAttendee(),is(getCreateEvent2.getAttendee())); */
+		assertThat(createEvent2.getAttendee(),is(getCreateEvent2.getAttendee())); 
+		System.out.println("3번테스트 성공\n");
 		
 	}
 	
@@ -202,24 +220,68 @@ public class DaoJUnitTest {
 	public void getAllEvent() {
 		// 4. 모든 Events를 가져오는 eventDao.getEvents()가 올바로 동작하는 지 (총 3개를 가지고 오는지) 확인하는 테스트 코드 작성  
 		// [주의] fixture로 등록된 3개의 이벤트들에 대한 테스트
+		System.out.println("\n4.------------------------------------------------");
+		List<Event> getEventsList = eventDao.getEvents();
+		assertThat(getEventsList.size(),is(3));
+		for(int i = 0; i < 3; i++){
+			assertThat(getEventsList.get(i).getSummary(),is(events[i].getSummary()));
+			assertThat(getEventsList.get(i).getDescription(),is(events[i].getDescription()));
+			assertThat(getEventsList.get(i).getOwner(),is(events[i].getOwner()));
+			assertThat(getEventsList.get(i).getAttendee(),is(events[i].getAttendee()));
+			System.out.println((i+1)+" 번째값 일치 확인");
+		}
+		System.out.println("4번테스트 성공\n");	
 		
 	}
+	
 	
 	@Test
 	public void getEvent() {
 		// 5. owner ID가 3인 Event에 대해 findForOwner가 올바로 동작하는 지 확인하는 테스트 코드 작성  
-		// [주의] fixture로 등록된 3개의 이벤트들에 대해서 owner ID가 3인 것인 1개의 이벤트뿐임 
+		// [주의] fixture로 등록된 3개의 이벤트들에 대해서 owner ID가 3인 것인 1개의 이벤트뿐임
+		
+		// ID가 생성시마다 바뀌므로 고정된 ID가 3으로는 테스트가 불가능하여 3번째로 등록된 유저의 ID로 테스트를 하였다.
+		System.out.println("\n5.------------------------------------------------");
+	
+		String email3 = "user2@example.com";
+		//CalendarUser getEventUser3 = calendarUserDao.findUserByEmail(email3);
+		assertThat(calendarUsers[2].getId(), is(eventDao.findForOwner(calendarUserDao.findUserByEmail(email3).getId()).get(0).getOwner().getId()));
+		
+		System.out.println("5번테스트 성공\n");
+		
+		//insert into calendar_users(`id`,`email`,`password`,`name`) values (2,'admin1@example.com','admin1','Admin');
+		//insert into calendar_users(`id`,`email`,`password`,`name`) values (3,'user2@example.com',
 	}
+	
 	
 	@Test
 	public void getOneUserByEmail() {
-		// 6. email이 'user1@example.com'인 CalendarUser가 존재함을 확인하는 테스크 코드 작성
+		// 6. email이 'user1@example.com'인 CalendarUser가 존재함을 확인하는 테스트 코드 작성 
 		// [주의] public CalendarUser findUserByEmail(String email)를 테스트 하는 코드
+		System.out.println("\n6.------------------------------------------------");
+		assertThat("user1@example.com", is(calendarUserDao.findUserByEmail("user1@example.com").getEmail()));
+		System.out.println("6번문제 테스트 완료\n");		
+		
 	}
+	
 	
 	@Test
 	public void getTwoUserByEmail() {
 		// 7. partialEmail이 'user'인 CalendarUser가 2명임을 확인하는 테스크 코드 작성
 		// [주의] public List<CalendarUser> findUsersByEmail(String partialEmail)를 테스트 하는 코드
+		System.out.println("\n7.------------------------------------------------");
+		List<CalendarUser> list = calendarUserDao.findUsersByEmail("user");
+		int count = 0;
+		System.out.println("User가 들어가는 아이디 수: "+list.size());
+		
+		for (int i = 0; i < calendarUsers.length;i++ ){
+			for (int j = 0; j < list.size(); j++){
+				if(calendarUsers[i].getId().equals(list.get(j).getId())) {count = count+1;}
+			}
+		}
+		
+		assertThat(count, is(2));
+		System.out.println("7번 테스트 성공");
+		System.out.println(count);
 	}
 }
